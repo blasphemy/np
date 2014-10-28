@@ -90,12 +90,6 @@ func GetTrack(user string) RealTrack {
 			rt.tags = append(rt.tags, j.(map[string]interface{})["name"].(string))
 		}
 	}
-	/*
-		rt.Album = data3.Track_v.Album_v.Name_v
-		for _, k := range data3.Track_v.TopT.Tags {
-			rt.tags = append(rt.tags, k.Name)
-		}
-	*/
 	return rt
 
 }
