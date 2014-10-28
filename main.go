@@ -11,7 +11,7 @@ var (
 	username = "zxo0oxz"
 	apikey   string
 	format   = "is listening to %s - %s On %s [%s plays]"
-	debug    = true
+	debug    = false
 )
 
 const (

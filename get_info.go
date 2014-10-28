@@ -10,7 +10,15 @@ import (
 	"strconv"
 )
 
-func GetTrack(user string) RealTrack {
+type Track struct {
+	Album     string
+	Artist    string
+	Name      string
+	PlayCount int
+	tags      []string
+}
+
+func GetTrack(user string) Track {
 	var tname string
 	var aname string
 	resp, err := http.Get(fmt.Sprintf("%s?method=user.getrecenttracks&user=%s&api_key=%s&format=json&limit=1", api_base_url, user, apikey))
@@ -33,28 +41,22 @@ func GetTrack(user string) RealTrack {
 	if debug {
 		fmt.Println(string(body))
 	}
-	data := &Loader{}
-	data2 := &Loader2{}
-	err = json.Unmarshal(body, data)
+	var data map[string]interface{}
+	err = json.Unmarshal(body, &data)
 	if err != nil {
 		if debug {
 			fmt.Println(err.Error())
 		}
-		err2 := json.Unmarshal(body, data2)
-		if err2 != nil {
-			if debug {
-				fmt.Println(err.Error())
-			}
-			os.Exit(1)
-		}
+		os.Exit(1)
 	}
-	if len(data2.Recent.TRay) > 0 {
-		tname = url.QueryEscape(data2.Recent.TRay[0].Name_v)
-		aname = url.QueryEscape(data2.Recent.TRay[0].Artist_v.Name_v)
+	if _, ok := data["recenttracks"].(map[string]interface{})["track"].([]interface{}); ok {
+		aname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})["artist"].(map[string]interface{})["#text"].(string))
+		tname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})["name"].(string))
 	} else {
-		tname = url.QueryEscape(data.Recent.Track_v.Name_v)
-		aname = url.QueryEscape(data.Recent.Track_v.Artist_v.Name_v)
+		aname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{})["artist"].(map[string]interface{})["#text"].(string))
+		tname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{})["name"].(string))
 	}
+
 	resp, err3 := http.Get(fmt.Sprintf("%s?method=track.getInfo&api_key=%s&artist=%s&track=%s&format=json&username=%s&autocorrect=1", api_base_url, apikey, aname, tname, user))
 	if err3 != nil {
 		if debug {
@@ -69,7 +71,6 @@ func GetTrack(user string) RealTrack {
 		}
 		os.Exit(1)
 	}
-	//data3 := &Loader{}
 	var data4 map[string]interface{}
 	err3 = json.Unmarshal(body, &data4)
 	if err3 != nil {
@@ -78,7 +79,7 @@ func GetTrack(user string) RealTrack {
 		}
 		os.Exit(1)
 	}
-	rt := RealTrack{}
+	rt := Track{}
 	rt.Album = data4["track"].(map[string]interface{})["album"].(map[string]interface{})["title"].(string)
 	rt.Artist = data4["track"].(map[string]interface{})["artist"].(map[string]interface{})["name"].(string)
 	rt.Name = data4["track"].(map[string]interface{})["name"].(string)
