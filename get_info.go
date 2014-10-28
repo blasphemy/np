@@ -69,8 +69,9 @@ func GetTrack(user string) RealTrack {
 		}
 		os.Exit(1)
 	}
-	data3 := &Loader{}
-	err3 = json.Unmarshal(body, data3)
+	//data3 := &Loader{}
+	var data4 map[string]interface{}
+	err3 = json.Unmarshal(body, &data4)
 	if err3 != nil {
 		if debug {
 			fmt.Println(err3.Error())
@@ -78,12 +79,23 @@ func GetTrack(user string) RealTrack {
 		os.Exit(1)
 	}
 	rt := RealTrack{}
-	rt.Album = data3.Track_v.Album_v.Name_v
-	rt.Artist = data3.Track_v.Artist_v.Name_2
-	rt.Name = data3.Track_v.Name_v
-	rt.PlayCount, _ = strconv.Atoi(data3.Track_v.UserCount)
-	for _, k := range data3.Track_v.TopT.Tags {
-		rt.tags = append(rt.tags, k.Name)
+	rt.Album = data4["track"].(map[string]interface{})["album"].(map[string]interface{})["title"].(string)
+	rt.Artist = data4["track"].(map[string]interface{})["artist"].(map[string]interface{})["name"].(string)
+	rt.Name = data4["track"].(map[string]interface{})["name"].(string)
+	if _, ta := data4["track"].(map[string]interface{})["userplaycount"].(string); ta {
+		rt.PlayCount, _ = strconv.Atoi(data4["track"].(map[string]interface{})["userplaycount"].(string))
 	}
+	if tags, lol := data4["track"].(map[string]interface{})["toptags"].(map[string]interface{}); lol {
+		for _, j := range tags["tag"].([]interface{}) {
+			rt.tags = append(rt.tags, j.(map[string]interface{})["name"].(string))
+		}
+	}
+	/*
+		rt.Album = data3.Track_v.Album_v.Name_v
+		for _, k := range data3.Track_v.TopT.Tags {
+			rt.tags = append(rt.tags, k.Name)
+		}
+	*/
 	return rt
+
 }

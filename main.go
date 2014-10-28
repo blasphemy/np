@@ -35,7 +35,7 @@ func main() {
 	if track.Album != "" {
 		o = o + fmt.Sprintf(" On [%s]", track.Album)
 	}
-	if track.PlayCount > 1 {
+	if track.PlayCount > 0 {
 		o = o + fmt.Sprintf(" [%d plays]", track.PlayCount)
 	}
 	if len(track.tags) > 0 {

@@ -17,11 +17,9 @@ type RT struct {
 }
 
 type Track struct {
-	Name_v    string  `json:"name"`
-	Artist_v  Artist  `json:"artist"`
-	Album_v   Album   `json:"album"`
-	UserCount string  `json:"userplaycount"`
-	TopT      TopTags `json:"toptags"`
+	Name_v   string `json:"name"`
+	Artist_v Artist `json:"artist"`
+	Album_v  Album  `json:"album"`
 }
 
 type Album struct {
@@ -30,14 +28,6 @@ type Album struct {
 type Artist struct {
 	Name_v string `json:"#text"`
 	Name_2 string `json:"name"`
-}
-
-type Tag struct {
-	Name string `json:"name"`
-}
-
-type TopTags struct {
-	Tags []Tag `json:"tag"`
 }
 
 type RealTrack struct {
