@@ -71,6 +71,9 @@ func GetTrack(user string) Track {
 		}
 		os.Exit(1)
 	}
+	if debug {
+		fmt.Println(string(body))
+	}
 	var data4 map[string]interface{}
 	err3 = json.Unmarshal(body, &data4)
 	if err3 != nil {
@@ -87,8 +90,12 @@ func GetTrack(user string) Track {
 		rt.PlayCount, _ = strconv.Atoi(data4["track"].(map[string]interface{})["userplaycount"].(string))
 	}
 	if tags, lol := data4["track"].(map[string]interface{})["toptags"].(map[string]interface{}); lol {
-		for _, j := range tags["tag"].([]interface{}) {
-			rt.tags = append(rt.tags, j.(map[string]interface{})["name"].(string))
+		if t, lol2 := tags["tag"].([]interface{}); lol2 {
+			for _, j := range t {
+				rt.tags = append(rt.tags, j.(map[string]interface{})["name"].(string))
+			}
+		} else {
+			rt.tags = append(rt.tags, tags["tag"].(map[string]interface{})["name"].(string))
 		}
 	}
 	return rt
