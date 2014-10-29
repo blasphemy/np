@@ -83,7 +83,9 @@ func GetTrack(user string) Track {
 		os.Exit(1)
 	}
 	rt := Track{}
-	rt.Album = data4["track"].(map[string]interface{})["album"].(map[string]interface{})["title"].(string)
+	if al, kk := data4["track"].(map[string]interface{})["album"].(map[string]interface{}); kk {
+		rt.Album = al["title"].(string)
+	}
 	rt.Artist = data4["track"].(map[string]interface{})["artist"].(map[string]interface{})["name"].(string)
 	rt.Name = data4["track"].(map[string]interface{})["name"].(string)
 	if _, ta := data4["track"].(map[string]interface{})["userplaycount"].(string); ta {
