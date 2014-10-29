@@ -11,7 +11,7 @@ var (
 	username = "zxo0oxz"
 	apikey   string
 	format   = "is listening to %s - %s On %s [%s plays]"
-	debug    = false
+	debug    = true
 )
 
 func main() {
@@ -40,9 +40,9 @@ func main() {
 	if track.PlayCount > 0 {
 		o = o + fmt.Sprintf(" [%d plays]", track.PlayCount)
 	}
-	if len(track.tags) > 0 {
+	if len(track.Tags) > 0 {
 		var k string
-		for _, j := range track.tags {
+		for _, j := range track.Tags {
 			k = k + fmt.Sprintf("#%s ", j)
 		}
 		k = strings.TrimSpace(k)

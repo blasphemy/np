@@ -14,11 +14,12 @@ const (
 )
 
 type Track struct {
-	Album     string
-	Artist    string
-	Name      string
-	PlayCount int
-	tags      []string
+	Album            string
+	Artist           string
+	Name             string
+	PlayCount        int
+	Tags             []string
+	CurrentlyPlaying bool
 }
 
 func GetTrack(user string, ApiKey string) (Track, error) {
@@ -63,13 +64,15 @@ func GetTrack(user string, ApiKey string) (Track, error) {
 		}
 		return rt, err
 	}
+	var ct map[string]interface{}
 	if _, ok := data["recenttracks"].(map[string]interface{})["track"].([]interface{}); ok {
-		aname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})["artist"].(map[string]interface{})["#text"].(string))
-		tname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})["name"].(string))
+		ct = data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})
 	} else {
-		aname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{})["artist"].(map[string]interface{})["#text"].(string))
-		tname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{})["name"].(string))
+		ct = data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{})
 	}
+	aname = url.QueryEscape(ct["artist"].(map[string]interface{})["#text"].(string))
+	tname = url.QueryEscape(ct["name"].(string))
+
 	for i := 1; i < 3; i++ {
 		if debug {
 			fmt.Println("HTTP GET 2 TRY ", i)
@@ -114,10 +117,10 @@ func GetTrack(user string, ApiKey string) (Track, error) {
 	if tags, lol := data2["track"].(map[string]interface{})["toptags"].(map[string]interface{}); lol {
 		if t, lol2 := tags["tag"].([]interface{}); lol2 {
 			for _, j := range t {
-				rt.tags = append(rt.tags, j.(map[string]interface{})["name"].(string))
+				rt.Tags = append(rt.Tags, j.(map[string]interface{})["name"].(string))
 			}
 		} else {
-			rt.tags = append(rt.tags, tags["tag"].(map[string]interface{})["name"].(string))
+			rt.Tags = append(rt.Tags, tags["tag"].(map[string]interface{})["name"].(string))
 		}
 	}
 	return rt, nil
