@@ -14,12 +14,8 @@ var (
 	debug    = false
 )
 
-const (
-	api_base_url = "https://ws.audioscrobbler.com/2.0/"
-)
-
 func main() {
-	apitemp, apierror := ioutil.ReadFile("/home/daniel/np/api.config")
+	apitemp, apierror := ioutil.ReadFile("api.config")
 	if apierror != nil {
 		if debug {
 			fmt.Println(apierror.Error())
@@ -29,7 +25,13 @@ func main() {
 	apikey = string(apitemp)
 	apikey = strings.TrimSpace(apikey)
 
-	track := GetTrack(username)
+	track, err := GetTrack(username, apikey)
+	if err != nil {
+		if debug {
+			fmt.Println(err.Error())
+		}
+		os.Exit(1)
+	}
 	format = "is listening to [%s] - [%s]"
 	o := fmt.Sprintf(format, track.Artist, track.Name)
 	if track.Album != "" {

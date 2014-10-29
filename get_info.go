@@ -6,8 +6,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
+)
+
+const (
+	api_base_url = "https://ws.audioscrobbler.com/2.0/"
 )
 
 type Track struct {
@@ -18,16 +21,17 @@ type Track struct {
 	tags      []string
 }
 
-func GetTrack(user string) Track {
+func GetTrack(user string, ApiKey string) (Track, error) {
 	var tname string
 	var aname string
 	var resp *http.Response
 	var err error
+	rt := Track{}
 	for i := 1; i < 3; i++ {
 		if debug {
 			fmt.Println("HTTP GET 1 TRY ", i)
 		}
-		resp, err = http.Get(fmt.Sprintf("%s?method=user.getrecenttracks&user=%s&api_key=%s&format=json&limit=1", api_base_url, user, apikey))
+		resp, err = http.Get(fmt.Sprintf("%s?method=user.getrecenttracks&user=%s&api_key=%s&format=json&limit=1", api_base_url, user, ApiKey))
 		if err == nil {
 			break
 		}
@@ -36,7 +40,7 @@ func GetTrack(user string) Track {
 		if debug {
 			fmt.Println("Http Get 1:", err.Error())
 		}
-		os.Exit(1)
+		return rt, err
 	}
 	if debug {
 		fmt.Println(resp)
@@ -46,7 +50,7 @@ func GetTrack(user string) Track {
 		if debug {
 			fmt.Println("Read resp.Body:", err.Error())
 		}
-		os.Exit(1)
+		return rt, err
 	}
 	if debug {
 		fmt.Println(string(body))
@@ -57,7 +61,7 @@ func GetTrack(user string) Track {
 		if debug {
 			fmt.Println(err.Error())
 		}
-		os.Exit(1)
+		return rt, err
 	}
 	if _, ok := data["recenttracks"].(map[string]interface{})["track"].([]interface{}); ok {
 		aname = url.QueryEscape(data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})["artist"].(map[string]interface{})["#text"].(string))
@@ -70,7 +74,7 @@ func GetTrack(user string) Track {
 		if debug {
 			fmt.Println("HTTP GET 2 TRY ", i)
 		}
-		resp, err = http.Get(fmt.Sprintf("%s?method=track.getInfo&api_key=%s&artist=%s&track=%s&format=json&username=%s&autocorrect=1", api_base_url, apikey, aname, tname, user))
+		resp, err = http.Get(fmt.Sprintf("%s?method=track.getInfo&api_key=%s&artist=%s&track=%s&format=json&username=%s&autocorrect=1", api_base_url, ApiKey, aname, tname, user))
 		if err == nil {
 			break
 		}
@@ -79,14 +83,14 @@ func GetTrack(user string) Track {
 		if debug {
 			fmt.Println("Error in Get 2:", err.Error())
 		}
-		os.Exit(1)
+		return rt, err
 	}
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		if debug {
 			fmt.Println("Error in Read 2:", err.Error())
 		}
-		os.Exit(1)
+		return rt, err
 	}
 	if debug {
 		fmt.Println(string(body))
@@ -97,9 +101,8 @@ func GetTrack(user string) Track {
 		if debug {
 			fmt.Println(err.Error())
 		}
-		os.Exit(1)
+		return rt, err
 	}
-	rt := Track{}
 	if al, kk := data2["track"].(map[string]interface{})["album"].(map[string]interface{}); kk {
 		rt.Album = al["title"].(string)
 	}
@@ -117,5 +120,5 @@ func GetTrack(user string) Track {
 			rt.tags = append(rt.tags, tags["tag"].(map[string]interface{})["name"].(string))
 		}
 	}
-	return rt
+	return rt, nil
 }
