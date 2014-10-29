@@ -19,7 +19,7 @@ const (
 )
 
 func main() {
-	apitemp, apierror := ioutil.ReadFile("api.config")
+	apitemp, apierror := ioutil.ReadFile("/home/daniel/np/api.config")
 	if apierror != nil {
 		if debug {
 			fmt.Println(apierror.Error())
