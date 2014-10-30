@@ -10,7 +10,6 @@ import (
 var (
 	username = "zxo0oxz"
 	apikey   string
-	format   = "is listening to %s - %s On %s [%s plays]"
 	debug    = true
 )
 
@@ -32,7 +31,12 @@ func main() {
 		}
 		os.Exit(1)
 	}
-	format = "is listening to [%s] - [%s]"
+	format := "[%s] - [%s]"
+	if track.CurrentlyPlaying {
+		format = "is listening to " + format
+	} else {
+		format = "last played " + format
+	}
 	o := fmt.Sprintf(format, track.Artist, track.Name)
 	if track.Album != "" {
 		o = o + fmt.Sprintf(" On [%s]", track.Album)

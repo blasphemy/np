@@ -72,6 +72,17 @@ func GetTrack(user string, ApiKey string) (Track, error) {
 	}
 	aname = url.QueryEscape(ct["artist"].(map[string]interface{})["#text"].(string))
 	tname = url.QueryEscape(ct["name"].(string))
+	if cc, ok := ct["@attr"].(map[string]interface{}); ok {
+		if aa, bb := cc["nowplaying"].(string); bb && aa == "true" {
+			rt.CurrentlyPlaying = true
+			if debug {
+				fmt.Println("Now playing = true")
+			}
+		} else {
+			rt.CurrentlyPlaying = false
+			fmt.Println("Now playing = false")
+		}
+	}
 
 	for i := 1; i < 3; i++ {
 		if debug {
