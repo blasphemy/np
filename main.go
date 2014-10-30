@@ -47,7 +47,7 @@ func main() {
 	if len(track.Tags) > 0 {
 		var k string
 		for _, j := range track.Tags {
-			k = k + fmt.Sprintf("#%s ", j)
+			k = k + fmt.Sprintf("#%s ", strings.Replace(j, " ", "", -1))
 		}
 		k = strings.TrimSpace(k)
 		k = fmt.Sprintf(" [%s]", k)
