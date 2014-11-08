@@ -41,10 +41,6 @@ func main() {
 		os.Exit(1)
 	}
 	tmpl := template.Must(template.New("format").Funcs(f).Parse(viper.GetString("template")))
-	if err != nil {
-		panic(err)
-	}
-	tmpl.Funcs(f)
 	track, err := GetTrack(username, apikey)
 	if err != nil {
 		if debug {
