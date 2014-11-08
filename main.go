@@ -5,20 +5,24 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"text/template"
 )
 
 var (
-	username = "zxo0oxz"
-	apikey   string
-	debug    = true
+	username        = "zxo0oxz"
+	apikey          string
+	debug           = true
+	defaultTemplate = "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{$element}}{{end}}]{{end}}"
 )
 
 func main() {
+	tmpl, err := template.New("format").Parse(defaultTemplate)
+	if err != nil {
+		panic(err)
+	}
 	apitemp, apierror := ioutil.ReadFile("api.config")
 	if apierror != nil {
-		if debug {
-			fmt.Println(apierror.Error())
-		}
+		fmt.Println(apierror)
 		os.Exit(1)
 	}
 	apikey = string(apitemp)
@@ -31,27 +35,8 @@ func main() {
 		}
 		os.Exit(1)
 	}
-	format := "[%s] - [%s]"
-	if track.CurrentlyPlaying {
-		format = "is listening to " + format
-	} else {
-		format = "last played " + format
+	err = tmpl.Execute(os.Stdout, track)
+	if err != nil {
+		panic(err)
 	}
-	o := fmt.Sprintf(format, track.Artist, track.Name)
-	if track.Album != "" {
-		o = o + fmt.Sprintf(" On [%s]", track.Album)
-	}
-	if track.PlayCount > 0 {
-		o = o + fmt.Sprintf(" [%d plays]", track.PlayCount)
-	}
-	if len(track.Tags) > 0 {
-		var k string
-		for _, j := range track.Tags {
-			k = k + fmt.Sprintf("#%s ", strings.Replace(j, " ", "", -1))
-		}
-		k = strings.TrimSpace(k)
-		k = fmt.Sprintf(" [%s]", k)
-		o = o + k
-	}
-	fmt.Print(o)
 }
