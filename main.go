@@ -2,32 +2,36 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"github.com/spf13/viper"
 	"os"
-	"strings"
 	"text/template"
 )
 
 var (
-	username        = "zxo0oxz"
-	apikey          string
-	debug           = true
-	defaultTemplate = "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{$element}}{{end}}]{{end}}"
+	debug bool
 )
 
 func main() {
-	tmpl, err := template.New("format").Parse(defaultTemplate)
+	viper.AddConfigPath("$HOME/np")
+	viper.AddConfigPath("$HOME/.np")
+	viper.AddConfigPath("$HOME")
+	wd, err := os.Getwd()
+	if err != nil {
+		viper.AddConfigPath(wd)
+	}
+	viper.SetConfigFile("np")
+	viper.SetDefault("template", "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{$element}}{{end}}]{{end}}")
+	viper.SetDefault("debug", true)
+	viper.SetDefault("username", "zxo0oxz")
+	viper.ReadInConfig()
+	fmt.Println(viper.GetString("test"))
+	apikey := viper.GetString("apikey")
+	username := viper.GetString("username")
+	debug = viper.GetBool("debug")
+	tmpl, err := template.New("format").Parse(viper.GetString("template"))
 	if err != nil {
 		panic(err)
 	}
-	apitemp, apierror := ioutil.ReadFile("api.config")
-	if apierror != nil {
-		fmt.Println(apierror)
-		os.Exit(1)
-	}
-	apikey = string(apitemp)
-	apikey = strings.TrimSpace(apikey)
-
 	track, err := GetTrack(username, apikey)
 	if err != nil {
 		if debug {
