@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -11,7 +12,15 @@ var (
 	debug bool
 )
 
+func RemoveSpaces(in string) string {
+	return strings.Replace(in, " ", "", -1)
+
+}
+
 func main() {
+	f := template.FuncMap{
+		"RemoveSpaces": RemoveSpaces,
+	}
 	viper.AddConfigPath("$HOME/np")
 	viper.AddConfigPath("$HOME/.np")
 	viper.AddConfigPath("$HOME")
@@ -20,7 +29,7 @@ func main() {
 		viper.AddConfigPath(wd)
 	}
 	viper.SetConfigName("np")
-	viper.SetDefault("template", "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{$element}}{{end}}]{{end}}")
+	viper.SetDefault("template", "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{RemoveSpaces $element}}{{end}}]{{end}}")
 	viper.SetDefault("debug", false)
 	viper.SetDefault("username", "zxo0oxz")
 	viper.ReadInConfig()
@@ -31,10 +40,11 @@ func main() {
 		fmt.Println("no api key")
 		os.Exit(1)
 	}
-	tmpl, err := template.New("format").Parse(viper.GetString("template"))
+	tmpl := template.Must(template.New("format").Funcs(f).Parse(viper.GetString("template")))
 	if err != nil {
 		panic(err)
 	}
+	tmpl.Funcs(f)
 	track, err := GetTrack(username, apikey)
 	if err != nil {
 		if debug {
