@@ -19,15 +19,18 @@ func main() {
 	if err != nil {
 		viper.AddConfigPath(wd)
 	}
-	viper.SetConfigFile("np")
+	viper.SetConfigName("np")
 	viper.SetDefault("template", "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{$element}}{{end}}]{{end}}")
-	viper.SetDefault("debug", true)
+	viper.SetDefault("debug", false)
 	viper.SetDefault("username", "zxo0oxz")
 	viper.ReadInConfig()
-	fmt.Println(viper.GetString("test"))
 	apikey := viper.GetString("apikey")
 	username := viper.GetString("username")
 	debug = viper.GetBool("debug")
+	if apikey == "" {
+		fmt.Println("no api key")
+		os.Exit(1)
+	}
 	tmpl, err := template.New("format").Parse(viper.GetString("template"))
 	if err != nil {
 		panic(err)
