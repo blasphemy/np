@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/blasphemy/urel"
 	"github.com/spf13/viper"
 	"os"
 	"strings"
@@ -20,6 +21,7 @@ func RemoveSpaces(in string) string {
 func main() {
 	f := template.FuncMap{
 		"RemoveSpaces": RemoveSpaces,
+		"short":        urel.Short,
 	}
 	viper.AddConfigPath("$HOME/np")
 	viper.AddConfigPath("$HOME/.np")
@@ -29,7 +31,7 @@ func main() {
 		viper.AddConfigPath(wd)
 	}
 	viper.SetConfigName("np")
-	viper.SetDefault("template", "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{RemoveSpaces $element}}{{end}}]{{end}}")
+	viper.SetDefault("template", "{{if .CurrentlyPlaying}}is now playing{{else}}last played{{end}} {{if .Artist}}[{{.Artist}}] - {{end}}{{if .Name}}[{{.Name}}] {{end}}{{if .Album}}On [{{.Album}}] {{end}}{{if .PlayCount}}[{{.PlayCount}} plays] {{end}}{{if .Tags}}[{{range $index, $element := .Tags}}{{if $index}} {{end}}#{{RemoveSpaces $element}}{{end}}]{{end}}{{if .SpotifyUrl}} [{{short .SpotifyUrl}}]{{end}}")
 	viper.SetDefault("debug", false)
 	viper.SetDefault("username", "zxo0oxz")
 	viper.ReadInConfig()

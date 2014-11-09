@@ -20,9 +20,10 @@ type Track struct {
 	PlayCount        int
 	Tags             []string
 	CurrentlyPlaying bool
+	SpotifyUrl       string
 }
 
-/* GetTrack returns a Track. One or all fields may be nil, because last.fm rocks 
+/* GetTrack returns a Track. One or all fields may be nil, because last.fm rocks
    This function will eventually be split off into it's own library.
 */
 func GetTrack(user string, ApiKey string) (Track, error) {
@@ -137,5 +138,6 @@ func GetTrack(user string, ApiKey string) (Track, error) {
 			rt.Tags = append(rt.Tags, tags["tag"].(map[string]interface{})["name"].(string))
 		}
 	}
+	rt.SpotifyUrl = GetSpotifyUrl(rt)
 	return rt, nil
 }
