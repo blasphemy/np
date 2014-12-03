@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -71,8 +72,10 @@ func GetTrack(user string, ApiKey string) (Track, error) {
 	var ct map[string]interface{}
 	if _, ok := data["recenttracks"].(map[string]interface{})["track"].([]interface{}); ok {
 		ct = data["recenttracks"].(map[string]interface{})["track"].([]interface{})[0].(map[string]interface{})
-	} else {
+	} else if _, ok := data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{}); ok {
 		ct = data["recenttracks"].(map[string]interface{})["track"].(map[string]interface{})
+	} else {
+		return Track{}, errors.New("something broke")
 	}
 	aname = url.QueryEscape(ct["artist"].(map[string]interface{})["#text"].(string))
 	tname = url.QueryEscape(ct["name"].(string))
