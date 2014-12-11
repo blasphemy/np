@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/blasphemy/urel"
 	"github.com/spf13/viper"
+	"github.com/blasphemy/getlasttrack"
 	"os"
 	"strings"
 	"text/template"
@@ -43,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 	tmpl := template.Must(template.New("format").Funcs(f).Parse(viper.GetString("template")))
-	track, err := GetTrack(username, apikey)
+	track, err := getlasttrack.GetTrack(username, apikey)
 	if err != nil {
 		if debug {
 			fmt.Println(err.Error())
