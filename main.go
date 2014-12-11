@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/blasphemy/urel"
 	"github.com/spf13/viper"
-	"github.com/blasphemy/getlasttrack"
+	"github.com/blasphemy/np/getlasttrack"
 	"os"
 	"strings"
 	"text/template"
